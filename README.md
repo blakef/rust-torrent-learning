@@ -54,14 +54,14 @@ src/
 ## Schedule
 
 ### 🔁 Refresher Notes — go fast (completed ~2 months ago):
-- [ ] [S1/A] Hello World
-- [ ] [S1/A] Primitives
-- [ ] [S1/A] Custom Types
-- [ ] [S1/A] Variable Bindings
-- [ ] [S1/A] Types
-- [ ] [S1/A] Conversion
-- [ ] [S2/B] Expressions
-- [ ] [S2/B] Flow of Control
+- [X] [S1/A] Hello World
+- [X] [S1/A] Primitives
+- [X] [S1/A] Custom Types
+- [X] [S1/A] Variable Bindings
+- [X] [S1/A] Types
+- [X] [S1/A] Conversion
+- [X] [S2/B] Expressions
+- [X] [S2/B] Flow of Control
 - [ ] [S2/B] Functions
 - [ ] [S2/B] Modules
 - [ ] [S2/B] Crates
