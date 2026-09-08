@@ -1,21 +1,21 @@
 # Rust Learning Schedule:
 
-Week 1: S1 - S3
-Week 2: S4 - S6
+* Week 1: S1 - S3
+* Week 2: S4 - S6
 
 ## Sub Project:
 
-Single-file torrent, one HTTP tracker, download-only, verify against piece hashes, write to disk.
+> Single-file torrent, one HTTP tracker, download-only, verify against piece hashes, write to disk.
 
 ### What I'm implementing
 
 Four protocol pieces, roughly in dependency order:
 
 **Bencode**, the encoding everything else is written in. Four types:
-1. integers i42e, 
-2. length-prefixed byte strings 4:spam,
-3. lists l…e, and 
-4. dicts d…e (keys are byte strings, sorted).
+1. integers `i42e`, 
+2. length-prefixed byte strings `4:spam`,
+3. lists `l…e`, and 
+4. dicts `d…e` (keys are byte strings, sorted).
 
 A few hundred lines. This is what you make zero-copy in the Lifetimes week — the decoder borrows &[u8] slices out of the input rather than allocating.
 
