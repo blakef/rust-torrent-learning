@@ -62,11 +62,11 @@ src/
 - [X] [S1/A] Conversion
 - [X] [S2/B] Expressions
 - [X] [S2/B] Flow of Control
-- [ ] [S2/B] Functions
-- [ ] [S2/B] Modules
-- [ ] [S2/B] Crates
-- [ ] [S2/B] Cargo
-- [ ] [S2/B] Attributes
+- [X] [S2/B] Functions
+- [X] [S2/B] Modules
+- [X] [S2/B] Crates
+- [X] [S2/B] Cargo
+- [X] [S2/B] Attributes
 
 ### 🌱 New ground — full depth:
 - [ ] Generics ← you stopped here; start of the real work.  Starting to implement the Simple Torrent Client from this point.
