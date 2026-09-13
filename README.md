@@ -69,17 +69,17 @@ src/
 - [X] [S2/B] Attributes
 
 ### 🌱 New ground — full depth:
-- [ ] Generics ← you stopped here; start of the real work.  Starting to implement the Simple Torrent Client from this point.
+- [X] Generics ← you stopped here; start of the real work.  Starting to implement the Simple Torrent Client from this point.
     - [ ] [S3] type params, bounds, multiple bounds, where-clauses
         - [ ] [T] define the domain types. PeerMessage enum, Torrent/Info structs, a generic Bitfield/piece store. Hardcode a parsed torrent or use test bytes so you have something to type against.
     - [ ] [S4/W2] associated types, phantom types (closes Generics)
         - [ ] [T] tracker-response types, and a piece-iterator scaffold ("pieces I still need").
-- [ ] Scoping rules
+- [X] Scoping rules
     - [ ] [S5/W2] RAII, moves/ownership, borrowing, aliasing, ref
         - [ ] [T] decide the ownership model — who owns the input buffer, who owns shared state. A first, possibly owned bencode decoder to get moving.
     - [ ] [S6/W2] the full chapter, fresh start (annotations, fns, methods, structs, bounds, coercion, elision)
         - [ ] [T] rewrite bencode as zero-copy (borrowing slices), parse the metainfo, and compute the infohash from the raw info-dict slice. The chapter's whole lesson, applied.
-- [ ] Traits
+- [X] Traits
     - [ ] [S7/W3] derive, operator overloading, Drop, Iterator, impl Trait
         - [ ] [T] a Tracker trait, Display for a status line, and the HTTP GET over TcpStream with compact-peer parsing.
     - [ ] [S8/W3] dyn/returning traits, supertraits, disambiguation
