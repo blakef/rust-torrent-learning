@@ -10,6 +10,25 @@ pub enum DecodeError {
     NAN(String),
 }
 
+/// # Simple Bencoding Library to use with our toy Torrent client
+///
+/// This allows for simple de/serialisation of [Bencode](https://en.wikipedia.org/wiki/Bencode)
+/// binary encoded data.
+///
+/// # Examples:
+/// ```
+/// use fbencoding::Value;
+///
+/// let example = Value::decode(b"l5:hellod5:worldi32eee");
+/// ```
+///
+/// or
+/// 
+/// ```
+/// let binary = Value::List(vec/[Value::Int(10), Value::ByteString(b"Hello"),
+/// Value::String("World!")]);
+/// println/("Encoded: {:?}", binary.encode());
+/// ```
 #[derive(Debug, PartialEq, Eq)]
 pub enum Value<'a> {
     Int(i64),
@@ -41,12 +60,17 @@ impl<'a> Decoder<'a> {
     }
 
     /// Decode the [u8] added when instantiating the Decoder into a Value.
+    ///
+    /// # Example:
+    ///
+    /// ```
     /// use crate::Decoder
     /// let raw = Decoder::new(b'li32e6:foobare')
     /// let value = Decoder.parse_value(); // Value::List(vec![
     ///                                    //               Value::Int(32),
     ///                                    //               Value::ByteString(b"foobar")
     ///                                    // ]);
+    /// ```
     fn parse_value(&mut self) -> Result<Value<'a>, DecodeError> {
         match self.peek() {
             Some(b'i') => self.parse_int(),
