@@ -1,9 +1,12 @@
 use std::collections::BTreeMap;
 
+/// The various errors encountered when decoding a Bencoded value.
 #[derive(Debug, PartialEq)]
 pub enum DecodeError {
     Invalid,
+    /// Unable to decode the [u8] for the described reason
     ParseError(String),
+    /// A poorly formatted number
     NAN(String),
 }
 
@@ -14,10 +17,11 @@ pub enum Value<'a> {
     List(Vec<Value<'a>>),
     Dict(BTreeMap<&'a str, Value<'a>>),
 
-    // Helpers for encoding/decoding strings, which are just byte strings with UTF-8 content.
+    /// Helpers for encoding/decoding strings, which are just byte strings with UTF-8 content.
     String(&'a str),
 }
 
+/// Captures the state for decoding a [u8] into Value.
 struct Decoder<'a> {
     input: &'a [u8],
     pos: usize,
@@ -36,6 +40,13 @@ impl<'a> Decoder<'a> {
         self.input.get(self.pos).copied()
     }
 
+    /// Decode the [u8] added when instantiating the Decoder into a Value.
+    /// use crate::Decoder
+    /// let raw = Decoder::new(b'li32e6:foobare')
+    /// let value = Decoder.parse_value(); // Value::List(vec![
+    ///                                    //               Value::Int(32),
+    ///                                    //               Value::ByteString(b"foobar")
+    ///                                    // ]);
     fn parse_value(&mut self) -> Result<Value<'a>, DecodeError> {
         match self.peek() {
             Some(b'i') => self.parse_int(),
@@ -159,6 +170,8 @@ impl<'a> Decoder<'a> {
 }
 
 impl<'a> Value<'a> {
+    /// Convert a Value instance into a [u8]. If you use a List of Dict it'll convert the set of
+    /// Values into a [u8].
     pub fn encode(&self) -> Vec<u8> {
         match self {
             Value::Int(i) => format!("i{}e", i).into_bytes(),
