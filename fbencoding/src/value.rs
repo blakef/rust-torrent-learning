@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 pub enum DecodeError {
     Invalid,
     ParseError(String),
-    NAN,
+    NAN(String),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -162,7 +162,6 @@ impl<'a> Value<'a> {
     pub fn encode(&self) -> Vec<u8> {
         match self {
             Value::Int(i) => format!("i{}e", i).into_bytes(),
-            Value::String(s) => Value::ByteString(s.as_bytes()).encode(),
             Value::ByteString(b) => {
                 format!("{}:{}", b.len(), String::from_utf8_lossy(b)).into_bytes()
             }
@@ -184,6 +183,9 @@ impl<'a> Value<'a> {
                 result.push('e' as u8);
                 result
             }
+
+            // Helper wrappers for writing test
+            Value::String(s) => Value::ByteString(s.as_bytes()).encode(),
         }
     }
 
@@ -192,28 +194,39 @@ impl<'a> Value<'a> {
     }
 }
 
-fn read_number(bytes: &[u8]) -> Result<(i32, &[u8]), DecodeError> {
+fn read_number(bytes: &[u8]) -> Result<(i64, &[u8]), DecodeError> {
     if bytes.is_empty() {
-        return Err(DecodeError::NAN);
+        return Err(DecodeError::NAN("Empty number".to_string()));
     }
 
     let negative = bytes[0] == b'-';
     if negative && bytes.len() == 1 {
-        return Err(DecodeError::NAN);
+        return Err(DecodeError::NAN("Only a '-' operator provided".to_string()));
     }
     let content = if negative { &bytes[1..] } else { bytes };
 
-    if content.is_empty() || !content[0].is_ascii_digit() {
-        return Err(DecodeError::NAN);
+    // Allowed 0, but can't be leading a zero: e.g. 012 or -01
+    let is_zero = Some(&b'0') == content.get(0);
+    if negative && is_zero {
+        return Err(DecodeError::NAN("Negative zero is not allowed".to_string()));
     }
 
-    let mut number: i32 = 0;
+    let is_leading_zero = is_zero && content.get(1).map_or(false, |&b| b.is_ascii_digit());
+    if is_leading_zero {
+        return Err(DecodeError::NAN("Leading 0's not allowed, e.g. 012 or -01".to_string()));
+    }
+
+    if content.is_empty() || !content[0].is_ascii_digit() {
+        return Err(DecodeError::NAN("Unable to parse the string into a number".to_string()));
+    }
+
+    let mut number: i64 = 0;
     let mut consumed = 0;
     for &byte in content {
         if !byte.is_ascii_digit() {
             break;
         }
-        number = number * 10 + (byte - b'0') as i32;
+        number = number * 10 + (byte - b'0') as i64;
         consumed += 1;
     }
     if negative {
@@ -352,11 +365,16 @@ mod tests {
         // Misuse
         assert!(read_number(b"i32e").is_err());
         assert!(read_number(b"").is_err());
+        assert!(read_number(b"01").is_err());
+        assert!(read_number(b"-01").is_err());
+        assert!(read_number(b"-0").is_err());
+
         // Simple case
         assert_eq!(read_number(b"0").unwrap().0, 0);
         assert_eq!(read_number(b"1").unwrap().0, 1);
         assert_eq!(read_number(b"-1").unwrap().0, -1);
         assert_eq!(read_number(b"123").unwrap().0, 123);
+
         // More nuanced
         assert_eq!(read_number(b"321e").unwrap().0, 321);
     }
