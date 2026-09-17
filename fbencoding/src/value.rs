@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::fmt;
 
 /// The various errors encountered when decoding a Bencoded value.
 #[derive(Debug, PartialEq)]
@@ -190,6 +191,52 @@ impl<'a> Decoder<'a> {
 
     fn parse_string(&mut self) -> Result<Value<'a>, DecodeError> {
         Ok(Value::ByteString(self.parse_bytes()?))
+    }
+}
+
+impl<'a> Value<'a> {
+    fn fmt_indented(&self, f: &mut fmt::Formatter<'_>, indent: usize) -> fmt::Result {
+        let inner_pad = "    ".repeat(indent + 1);
+        match self {
+            Value::Int(i) => write!(f, "Int({})", i),
+            Value::ByteString(b) => {
+                match std::str::from_utf8(b) {
+                    Ok(s) => write!(f, "ByteString({:?})", s),
+                    Err(_) => write!(f, "ByteString({:?})", b),
+                }
+            }
+            Value::List(list) => {
+                if list.is_empty() {
+                    return write!(f, "List([])");
+                }
+                writeln!(f, "List([")?;
+                for v in list {
+                    write!(f, "{}", inner_pad)?;
+                    v.fmt_indented(f, indent + 1)?;
+                    writeln!(f, ",")?;
+                }
+                write!(f, "{}])", "    ".repeat(indent))
+            }
+            Value::Dict(dict) => {
+                if dict.is_empty() {
+                    return write!(f, "Dict({{}})");
+                }
+                writeln!(f, "Dict({{")?;
+                for (k, v) in dict {
+                    write!(f, "{}{:?}: ", inner_pad, k)?;
+                    v.fmt_indented(f, indent + 1)?;
+                    writeln!(f, ",")?;
+                }
+                write!(f, "{}}})", "    ".repeat(indent))
+            }
+            _ => write!(f, "<Unsupported Value variant for Display>"),
+        }
+    }
+}
+
+impl<'a> fmt::Display for Value<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.fmt_indented(f, 0)
     }
 }
 
@@ -395,6 +442,20 @@ mod tests {
                 ),
             ]))
         );
+    }
+
+    #[test]
+    fn test_bytestring_formats_correctly() {
+        // Printable should show as UTF-8
+        let v = Value::ByteString(b"Hello, World!");
+        assert_eq!(format!("{}", v), "ByteString(\"Hello, World!\")");
+        let hello = [0x68, 0x65, 0x6C, 0x6C, 0x6F];
+        assert_eq!(hello, *b"hello");
+        assert_eq!(format!("{}", Value::ByteString(&hello)), "ByteString(\"hello\")");
+
+        // Non-printable should show as a vector of bytes
+        let v = Value::ByteString(&[104, 101, 108, 108, 111, 255]);
+        assert_eq!(format!("{}", v), "ByteString([104, 101, 108, 108, 111, 255])");
     }
 
     #[test]
