@@ -26,9 +26,11 @@ pub enum DecodeError {
 /// or
 /// 
 /// ```
-/// let binary = Value::List(vec/[Value::Int(10), Value::ByteString(b"Hello"),
+/// use fbencoding::Value;
+///
+/// let binary = Value::List(vec![Value::Int(10), Value::ByteString(b"Hello"),
 /// Value::String("World!")]);
-/// println/("Encoded: {:?}", binary.encode());
+/// println!("Encoded: {:?}", binary.encode());
 /// ```
 #[derive(Debug, PartialEq, Eq)]
 pub enum Value<'a> {
@@ -65,12 +67,13 @@ impl<'a> Decoder<'a> {
     /// # Example:
     ///
     /// ```
-    /// use crate::Decoder
-    /// let raw = Decoder::new(b'li32e6:foobare')
-    /// let value = Decoder.parse_value(); // Value::List(vec![
-    ///                                    //               Value::Int(32),
-    ///                                    //               Value::ByteString(b"foobar")
-    ///                                    // ]);
+    /// use fbencoding::Value;
+    ///
+    /// let value = Value::decode(b"li32e6:foobare");
+    /// // Ok(Value::List(vec![
+    /// //     Value::Int(32),
+    /// //     Value::ByteString(b"foobar"),
+    /// // ]))
     /// ```
     fn parse_value(&mut self) -> Result<Value<'a>, DecodeError> {
         match self.peek() {
